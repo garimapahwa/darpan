@@ -13,6 +13,13 @@ const ACKNOWLEDGEMENT_PHRASES = [
   "Samajh gaya, agent ko bata raha hoon.",
 ];
 
+// Used on hosts with no local VS Code to actually type into (e.g. the
+// hosted web demo) — honest about it being a demo rather than pretending.
+const MOCK_ACKNOWLEDGEMENT_PHRASES = [
+  "Got it — on the desktop app, this would go straight to your agent now.",
+  "Noted — in the real app this gets typed into your coding agent for you.",
+];
+
 let idCounter = 0;
 function nextId() {
   idCounter += 1;
@@ -32,8 +39,10 @@ interface UseConversationResult {
   /** Speaks a short, fixed acknowledgement instead of a full LLM reply — used
    * when the user's message is being forwarded to their coding agent instead
    * of answered directly. Bypasses the LLM so it can't ignore the "don't try
-   * to fix it yourself" instruction and improvise an apology instead. */
-  runAcknowledgement: (instruction: string) => void;
+   * to fix it yourself" instruction and improvise an apology instead. `mock`
+   * is true when there was no real VS Code to inject into (e.g. the hosted
+   * web demo) — the phrase says so honestly instead of claiming it worked. */
+  runAcknowledgement: (instruction: string, mock: boolean) => void;
   /** Has the AI comment on a sustained facial expression — either a reaction
    * to its own last answer ("post-ai") or unprompted/ambient. */
   runReaction: (state: "happy" | "sad" | "confused", context: ReactionContext) => void;
@@ -150,12 +159,13 @@ export function useConversation(enabled: boolean, engine: EmotionEngine): UseCon
   }, [engine, stopTurn, runTurn]);
 
   const runAcknowledgement = useCallback(
-    (instruction: string) => {
+    (instruction: string, mock: boolean) => {
       abortRef.current?.abort();
       stopTurn();
-      console.log("[bridge] forwarding to agent:", instruction);
+      debugLog("[bridge] forwarding to agent:", instruction, "mock:", mock);
 
-      const phrase = ACKNOWLEDGEMENT_PHRASES[Math.floor(Math.random() * ACKNOWLEDGEMENT_PHRASES.length)];
+      const pool = mock ? MOCK_ACKNOWLEDGEMENT_PHRASES : ACKNOWLEDGEMENT_PHRASES;
+      const phrase = pool[Math.floor(Math.random() * pool.length)];
       engine.setAiSpeaking(true);
       startTurn();
       setAiCaption(phrase);

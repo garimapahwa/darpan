@@ -26,11 +26,14 @@ interface UseFrustrationBridgeResult {
  * Listens to final user transcripts, asks the backend whether the user just
  * vented frustration at their coding agent, and — after a short cancelable
  * on-screen countdown — forwards it into VS Code via /api/inject instead of
- * letting the normal conversational reply run.
+ * letting the normal conversational reply run. On a non-macOS host (e.g. the
+ * hosted web demo, which has no local VS Code to reach into), /api/inject
+ * returns `mock: true` instead of actually typing anything — passed through
+ * so runAcknowledgement can say so honestly instead of pretending it worked.
  */
 export function useFrustrationBridge(
   enabled: boolean,
-  runAcknowledgement: (instruction: string) => void,
+  runAcknowledgement: (instruction: string, mock: boolean) => void,
 ): UseFrustrationBridgeResult {
   const [pending, setPending] = useState<PendingInjection | null>(null);
   const lastInjectedAtRef = useRef(-Infinity);
@@ -87,20 +90,24 @@ export function useFrustrationBridge(
         setPending(null);
         lastInjectedAtRef.current = Date.now();
 
+        let mock = true;
         try {
           const res = await fetch("/api/inject", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: data.instruction }),
           });
-          if (!res.ok) {
+          if (res.ok) {
+            const body = await res.json();
+            mock = Boolean(body.mock);
+          } else {
             console.error("inject failed", await res.text().catch(() => ""));
           }
         } catch (err) {
           console.error("inject failed", err);
         }
 
-        runAcknowledgement(data.instruction);
+        runAcknowledgement(data.instruction, mock);
       }, INJECTION_COUNTDOWN_MS);
     },
     [enabled, runAcknowledgement],
