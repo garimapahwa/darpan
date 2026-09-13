@@ -1,0 +1,22 @@
+appId: com.darpan.app
+productName: Darpan
+directories:
+  output: release
+files:
+  - src/**/*
+  - package.json
+extraResources:
+  - from: ../server/dist-bundle
+    to: server-bundle
+  - from: ../web/dist
+    to: web-dist
+mac:
+  category: public.app-category.productivity
+  target:
+    - dmg
+    - zip
+  # Unsigned (no Apple Developer account in scope): first launch on another
+  # Mac will hit Gatekeeper's "unidentified developer" block, worked around
+  # with a right-click → Open — documented in the README rather than solved
+  # here, which would require a paid signing identity.
+  identity: null

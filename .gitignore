@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-bundle/
+release/
+*.log
+
+.env
+desktop/src/default-key.json
+
+.DS_Store
