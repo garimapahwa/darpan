@@ -3,6 +3,7 @@ dist/
 dist-bundle/
 release/
 *.log
+*.tsbuildinfo
 
 .env
 desktop/src/default-key.json
