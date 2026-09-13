@@ -213,6 +213,72 @@ html.bubble-mode #root {
   gap: 2px;
 }
 
+.agent-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 280px;
+  max-height: 220px;
+  background: rgba(13, 17, 23, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 5;
+}
+
+.agent-panel__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.agent-panel__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3fb950;
+}
+
+.agent-panel__body {
+  padding: 10px 12px;
+  overflow-y: auto;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agent-panel__line {
+  color: #d2d8de;
+  line-height: 1.4;
+}
+
+.agent-panel__prompt {
+  color: var(--accent);
+}
+
+.agent-panel__mock-tag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: rgba(240, 136, 62, 0.15);
+  color: #f0883e;
+  font-size: 10px;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
 .debug-panel {
   position: absolute;
   top: 16px;

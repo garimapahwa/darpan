@@ -11,6 +11,7 @@ import { CallControls } from "./CallControls";
 import { Captions } from "./Captions";
 import { DebugPanel } from "./DebugPanel";
 import { InjectionToast } from "./InjectionToast";
+import { MockAgentPanel } from "./MockAgentPanel";
 import { SelfView } from "./SelfView";
 
 interface CallScreenProps {
@@ -79,6 +80,8 @@ export function CallScreen({ onEndCall }: CallScreenProps) {
       {bridge.pending && (
         <InjectionToast instruction={bridge.pending.instruction} countdownMs={INJECTION_COUNTDOWN_MS} onCancel={bridge.cancel} />
       )}
+
+      <MockAgentPanel entries={bridge.agentLog} />
 
       <DebugPanel visible={debugVisible} scores={snapshot.scores} state={snapshot.state} calibrating={snapshot.calibrating} />
 

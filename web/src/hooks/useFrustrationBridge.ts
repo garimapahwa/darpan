@@ -12,8 +12,21 @@ interface PendingInjection {
   instruction: string;
 }
 
+export interface AgentLogEntry {
+  id: string;
+  text: string;
+  mock: boolean;
+  at: number;
+}
+
+let logIdCounter = 0;
+
 interface UseFrustrationBridgeResult {
   pending: PendingInjection | null;
+  /** Instructions that have been sent (or, on a non-macOS host, would have
+   * been sent) to the coding agent, newest last — for the on-page mock
+   * "agent" panel so the feature is demoable without a real VS Code. */
+  agentLog: AgentLogEntry[];
   cancel: () => void;
   /** Classifies a final transcript. Calls onNotFrustration() itself (not the
    * normal reply) whenever this turn should fall back to a normal
@@ -29,13 +42,15 @@ interface UseFrustrationBridgeResult {
  * letting the normal conversational reply run. On a non-macOS host (e.g. the
  * hosted web demo, which has no local VS Code to reach into), /api/inject
  * returns `mock: true` instead of actually typing anything — passed through
- * so runAcknowledgement can say so honestly instead of pretending it worked.
+ * so runAcknowledgement can say so honestly instead of pretending it worked,
+ * and recorded in agentLog for the on-page mock agent panel.
  */
 export function useFrustrationBridge(
   enabled: boolean,
   runAcknowledgement: (instruction: string, mock: boolean) => void,
 ): UseFrustrationBridgeResult {
   const [pending, setPending] = useState<PendingInjection | null>(null);
+  const [agentLog, setAgentLog] = useState<AgentLogEntry[]>([]);
   const lastInjectedAtRef = useRef(-Infinity);
   const timerRef = useRef<number | null>(null);
   const cancelledRef = useRef(false);
@@ -107,11 +122,13 @@ export function useFrustrationBridge(
           console.error("inject failed", err);
         }
 
+        logIdCounter += 1;
+        setAgentLog((log) => [...log, { id: `a${logIdCounter}`, text: data.instruction, mock, at: Date.now() }]);
         runAcknowledgement(data.instruction, mock);
       }, INJECTION_COUNTDOWN_MS);
     },
     [enabled, runAcknowledgement],
   );
 
-  return { pending, cancel, handleTranscript };
+  return { pending, agentLog, cancel, handleTranscript };
 }
