@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: darpan
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: node server/dist/index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: NODE_ENV
+        value: production
