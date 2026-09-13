@@ -3,7 +3,11 @@ services:
     name: darpan
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
+    # NODE_ENV=production (Render's default, also set below for runtime)
+    # makes plain `npm install` skip devDependencies — which is where
+    # typescript/@types/node live, breaking the TS build. --include=dev
+    # forces them in regardless.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: node server/dist/index.js
     healthCheckPath: /api/health
     envVars:
